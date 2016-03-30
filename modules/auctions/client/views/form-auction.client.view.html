@@ -1,0 +1,29 @@
+<section>
+  <div class="page-header">
+    <h1>{{vm.auction._id ? 'Edit Auction' : 'New Auction'}}</h1>
+  </div>
+  <div class="col-md-12">
+    <form name="vm.form.auctionForm" class="form-horizontal" ng-submit="vm.save(vm.form.auctionForm.$valid)" novalidate>
+      <fieldset>
+        <div class="form-group" show-errors>
+          <label class="control-label" for="name">Name</label>
+          <input name="name" type="text" ng-model="vm.auction.name" id="name" class="form-control" placeholder="Name" required>
+          <div ng-messages="vm.form.auctionForm.name.$error" role="alert">
+            <p class="help-block error-text" ng-message="required">Auction name is required.</p>
+          </div>
+          <label class="control-label" for="startDate">Start date</label>
+          <input name="name" type="text" ng-model="vm.auction.startDate" id="startDate" class="form-control" placeholder="Start date" required>
+          <div ng-messages="vm.form.auctionForm.startDate.$error" role="alert">
+            <p class="help-block error-text" ng-message="required">Auction name is required.</p>
+          </div>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-default">{{vm.auction._id ? 'Update' : 'Create'}}</button>
+        </div>
+        <div ng-show="vm.error" class="text-danger">
+          <strong ng-bind="vm.error"></strong>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</section>

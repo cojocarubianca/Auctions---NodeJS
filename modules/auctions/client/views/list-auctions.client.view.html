@@ -1,0 +1,23 @@
+<section>
+  <div class="page-header">
+    <h1>Auctions</h1>
+  </div>
+  <div class="list-group">
+    <a data-ng-repeat="auction in vm.auctions"
+       data-ui-sref="auctions.view({ auctionId: auction._id })"
+       class="list-group-item">
+      <small class="list-group-item-text">
+        Posted on
+        <span data-ng-bind="auction.created | date:'mediumDate'"></span>
+        by
+        <span data-ng-if="auction.user" data-ng-bind="auction.user.displayName"></span>
+        <span data-ng-if="!auction.user">Deleted User</span>
+      </small>
+      <h4 class="list-group-item-heading" data-ng-bind="auction.name"></h4>
+      <h4 class="list-group-item-heading" data-ng-bind="auction.startDate"></h4>
+    </a>
+  </div>
+  <div class="alert alert-warning text-center" data-ng-if="vm.auctions.$resolved && !vm.auctions.length">
+    No Auctions yet, why don't you <a data-ui-sref="auctions.create">create one</a>?
+  </div>
+</section>
