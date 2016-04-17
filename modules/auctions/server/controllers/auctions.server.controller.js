@@ -14,7 +14,7 @@ var path = require('path'),
  */
 exports.create = function(req, res) {
   var auction = new Auction(req.body);
-  auction.user = req.user;
+  auction.author = req.user;
 
   auction.save(function(err) {
     if (err) {
@@ -114,4 +114,14 @@ exports.auctionByID = function(req, res, next, id) {
     req.auction = auction;
     next();
   });
+};
+
+exports.allCategories = function (req, res) {
+  var categories = Auction.schema.path('category').enumValues;
+  res.jsonp(categories);
+};
+
+exports.allCurrencies = function (req, res) {
+  var currencies = Auction.schema.path('currency').enumValues;
+  res.jsonp(currencies);
 };

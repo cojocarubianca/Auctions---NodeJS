@@ -20,6 +20,15 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/auctions/:auctionId',
       permissions: '*'
+    }, {
+      resources: '/api/categories',
+      permissions:'*'
+    }, {
+      resources: '/api/currencies',
+      permissions:'*'
+    }, {
+      resources: '/api/utils/uploadFile',
+      permissions:'*'
     }]
   }, {
     roles: ['user'],
@@ -29,6 +38,15 @@ exports.invokeRolesPolicies = function () {
     }, {
       resources: '/api/auctions/:auctionId',
       permissions: ['get']
+    }, {
+      resources: '/api/categories',
+      permissions: ['get']
+    }, {
+      resources: '/api/currencies',
+      permissions:'*'
+    }, {
+      resources: '/api/utils/uploadFile',
+      permissions:'*'
     }]
   }, {
     roles: ['guest'],

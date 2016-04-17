@@ -3,8 +3,7 @@
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose'),
-  Schema = mongoose.Schema;
+var mongoose = require('mongoose'), Schema = mongoose.Schema;
 
 /**
  * Auction Schema
@@ -48,7 +47,14 @@ var AuctionSchema = new Schema({
   },
   currency: {
     type: String,
+    enum: ['EUR', 'GBP', 'USD'],
+    default: 'EUR',
     required: 'Please fill currency'
+  },
+  category: {
+    type: String,
+    enum: ['Art', 'Books', 'Antiques', 'Jewelry', 'Musical Instruments'],
+    required: "Please fill the category"
   },
   status: {
     type: [{
