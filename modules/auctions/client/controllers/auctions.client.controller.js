@@ -22,14 +22,6 @@
     vm.save = save;
     vm.bidValue = 0;
 
-    vm.startDatePopup = {
-      opened : false
-    };
-
-    vm.openStartDatePopup = function () {
-      vm.startDatePopup.opened = true;
-    };
-
     vm.endDatePopup = {
       opened : false
     };
@@ -94,13 +86,18 @@
     // ====== Upload =======
     
     $scope.bid = function () {
+      if (vm.auction.isCurrentUserOwner) {
+        vm.messages = 'The owner cannot bid';
+        return false;
+      }
+
       if (vm.bidValue === 0) {
         vm.messages = 'The bid value cannot be 0';
         return false;
       }
 
       if (vm.bidValue < vm.auction.startingBid) {
-        vm.messages = 'The bid has to be greater than the starting bid!'
+        vm.messages = 'The bid has to be greater than the starting bid!';
         return false;
       }
 
@@ -162,6 +159,12 @@
               }
           );
           return false;
+      } else {
+        if (vm.auction._id) {
+          vm.auction.$update(successCallback, errorCallback);
+        } else {
+          vm.auction.$save(successCallback, errorCallback);
+        }
       }
 
 
@@ -217,5 +220,23 @@
     }
 
     initializeClock(vm.auction.endDate);
+
+    /// ====
+
+    $scope.startAuction = function () {
+      vm.auction.status = 'active';
+      vm.auction.startDate = Date.now();
+
+      vm.auction.$update(
+          function(res) {
+            vm.messages = 'The auction was started';
+          },
+          function(res) {
+            vm.messages = 'The auction could not be started. Please try again later!';
+            vm.auction.status = 'pending';
+          });
+      return false;
+    }
+
   }
 })();

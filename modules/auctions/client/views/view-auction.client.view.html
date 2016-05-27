@@ -4,7 +4,8 @@
     <div class="pull-right"
          data-ng-show="vm.auction.isCurrentUserOwner">
       <a class="btn btn-primary"
-         data-ui-sref="auctions.edit({ auctionId: vm.auction._id })">
+         data-ui-sref="auctions.edit({ auctionId: vm.auction._id })"
+        ng-show="vm.auction.status == 'pending'">
         <i class="glyphicon glyphicon-edit"></i>
       </a>
       <a class="btn btn-primary" data-ng-click="vm.remove()">
@@ -18,6 +19,9 @@
       <p class="lead" data-ng-bind="vm.auction.description"></p>
       <br/>
       <h4>Category: {{vm.auction.category}}</h4>
+      <br/>
+      <button ng-show="vm.auction.isCurrentUserOwner && vm.auction.status == 'pending'"
+              ng-click="startAuction()">Start auction</button>
     </div>
     <div class="col-md-4">
       <div class="row">
@@ -27,7 +31,7 @@
         </p>
         <p class="bg-primary">Starting bid: {{vm.auction.startingBid}} {{vm.auction.currency}}</p>
         <p class="bg-danger">Highest bid: {{vm.auction.highestBid}} {{vm.auction.currency}}</p>
-        <div ng-show="!vm.auction.isCurrentUserOwner">
+        <div ng-show="!vm.auction.isCurrentUserOwner && vm.auction.status == 'active'">
           <label>Your bid: </label>
           <input type="number" ng-model="vm.bidValue">
           <button class="btn-primary" ng-click="bid()">Bid</button>
@@ -36,7 +40,7 @@
           <strong ng-bind="vm.messages"></strong>
         </div>
         <br/>
-        <div ng-show="!vm.clock.ended">
+        <div ng-show="!vm.clock.ended && vm.auction.status == 'active'">
           <h4 class="bg-info">Auction ends in</h4>
           <div class="clockDiv">
             <div>
@@ -57,7 +61,8 @@
             </div>
           </div>
         </div>
-        <h4 class="bg-info" ng-show="vm.clock.ended">Auction has ended!</h4>
+        <h4 class="bg-info" ng-show="vm.clock.ended && vm.auction.status !== 'pending'">Auction has ended!</h4>
+        <h4 class="bg-info" ng-show="vm.auction.status == 'pending'">Auction has not been started!</h4>
       </div>
     </div>
   </div>

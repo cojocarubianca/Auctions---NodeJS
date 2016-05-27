@@ -24,8 +24,7 @@ var AuctionSchema = new Schema({
     ref: 'User'
   },
   startDate: {
-    type: Date,
-    required: 'Please fill starting date'
+    type: Date
   },
   endDate: {
     type: Date,
@@ -57,11 +56,9 @@ var AuctionSchema = new Schema({
     required: "Please fill the category"
   },
   status: {
-    type: [{
-      type: String,
-      enum: ['active', 'inactive']
-    }],
-    default: ['inactive']
+    type: String,
+    enum: ['pending', 'active', 'ended'],
+    default: ['pending']
   },
   pictures: {
     type: [String],
