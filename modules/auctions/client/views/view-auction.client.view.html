@@ -1,26 +1,98 @@
 <section>
   <div class="page-header">
-    <h1 data-ng-bind="vm.auction.name"></h1>
+    <h1 class="visible-lg-inline" data-ng-bind="vm.auction.name"></h1>
+    <div class="pull-right"
+         data-ng-show="vm.auction.isCurrentUserOwner">
+      <a class="btn btn-primary"
+         data-ui-sref="auctions.edit({ auctionId: vm.auction._id })"
+        ng-show="vm.auction.status == 'pending'">
+        <i class="glyphicon glyphicon-edit"></i>
+      </a>
+      <a class="btn btn-primary" data-ng-click="vm.remove()">
+        <i class="glyphicon glyphicon-trash"></i>
+      </a>
+    </div>
   </div>
-  <div class="pull-right"
-       data-ng-show="vm.auction.isCurrentUserOwner">
-    <a class="btn btn-primary"
-       data-ui-sref="auctions.edit({ auctionId: vm.auction._id })">
-      <i class="glyphicon glyphicon-edit"></i>
-    </a>
-    <a class="btn btn-primary" data-ng-click="vm.remove()">
-      <i class="glyphicon glyphicon-trash"></i>
-    </a>
+
+  <div class="row">
+    <div class="col-md-8 margin">
+      <p class="lead" data-ng-bind="vm.auction.description"></p>
+      <br/>
+      <h4>Category: {{vm.auction.category}}</h4>
+      <br/>
+      <button ng-show="vm.auction.isCurrentUserOwner && vm.auction.status == 'pending'"
+              ng-click="startAuction()">Start auction</button>
+    </div>
+    <div class="col-md-4">
+      <div class="row">
+        <p class="bg-info"
+           ng-show="(vm.authentication.user._id == vm.auction.winner) && !vm.auction.isCurrentUserOwner">
+          You are the highest bidder at this moment.
+        </p>
+        <p class="bg-primary">Starting bid: {{vm.auction.startingBid}} {{vm.auction.currency}}</p>
+        <p class="bg-danger">Highest bid: {{vm.auction.highestBid}} {{vm.auction.currency}}</p>
+        <div ng-show="!vm.auction.isCurrentUserOwner && vm.auction.status == 'active'">
+          <label>Your bid: </label>
+          <input type="number" ng-model="vm.bidValue">
+          <button class="btn-primary" ng-click="bid()">Bid</button>
+        </div>
+        <div ng-show="vm.messages" class="text-info">
+          <strong ng-bind="vm.messages"></strong>
+        </div>
+        <br/>
+        <div ng-show="!vm.clock.ended && vm.auction.status == 'active'">
+          <h4 class="bg-info">Auction ends in</h4>
+          <div class="clockDiv">
+            <div>
+              <span>{{vm.clock.days}}</span>
+              <div class="smallText">Days</div>
+            </div>
+            <div>
+              <span>{{vm.clock.hours}}</span>
+              <div class="smallText">Hours</div>
+            </div>
+            <div>
+              <span>{{vm.clock.minutes}}</span>
+              <div class="smallText">Minutes</div>
+            </div>
+            <div>
+              <span>{{vm.clock.seconds}}</span>
+              <div class="smallText">Seconds</div>
+            </div>
+          </div>
+        </div>
+        <h4 class="bg-info" ng-show="vm.clock.ended && vm.auction.status !== 'pending'">Auction has ended!</h4>
+        <h4 class="bg-info" ng-show="vm.auction.status == 'pending'">Auction has not been started!</h4>
+      </div>
+    </div>
   </div>
+  <br/>
+
+
+
+  <br/>
+  <div class="text-center">
+    <div style="height: 270px;width: 650px;margin-left: 250px;">
+      <carousel interval="vm.interval">
+        <slide ng-repeat="picture in vm.auction.pictures">
+          <img style="margin: auto; width: 400px;height: 250px;" ng-src="{{picture}}">
+          <div class="carousel-caption">
+            <h4>Image {{$index + 1}}</h4  >
+          </div>
+        </slide>
+      </carousel>
+      <p class="bg-info center" ng-if="vm.auction.pictures.length == 0">No pictures for this auction!</p>
+    </div>
+  </div>
+
   <small>
     <em class="text-muted">
       Posted on
       <span data-ng-bind="vm.auction.created | date:'mediumDate'"></span>
       by
-      <span data-ng-if="vm.auction.user"
-            data-ng-bind="vm.auction.user.displayName"></span>
-      <span data-ng-if="!vm.auction.user">Deleted User</span>
+      <span data-ng-if="vm.auction.author"
+            data-ng-bind="vm.auction.author.displayName"></span>
+      <span data-ng-if="!vm.auction.author">Deleted User</span>
     </em>
   </small>
-  <p class="lead" data-ng-bind="vm.auction.content"></p>
 </section>

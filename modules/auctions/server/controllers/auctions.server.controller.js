@@ -14,7 +14,7 @@ var path = require('path'),
  */
 exports.create = function(req, res) {
   var auction = new Auction(req.body);
-  auction.user = req.user;
+  auction.author = req.user;
 
   auction.save(function(err) {
     if (err) {
@@ -36,7 +36,7 @@ exports.read = function(req, res) {
 
   // Add a custom field to the Article, for determining if the current User is the "owner".
   // NOTE: This field is NOT persisted to the database, since it doesn't exist in the Article model.
-  auction.isCurrentUserOwner = req.user && auction.user && auction.user._id.toString() === req.user._id.toString() ? true : false;
+  auction.isCurrentUserOwner = req.user && auction.author && auction.author._id.toString() === req.user._id.toString() ? true : false;
 
   res.jsonp(auction);
 };
@@ -81,7 +81,7 @@ exports.delete = function(req, res) {
  * List of Auctions
  */
 exports.list = function(req, res) { 
-  Auction.find().sort('-created').populate('user', 'displayName').exec(function(err, auctions) {
+  Auction.find().sort('-created').populate('author', 'displayName').exec(function(err, auctions) {
     if (err) {
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
@@ -103,7 +103,7 @@ exports.auctionByID = function(req, res, next, id) {
     });
   }
 
-  Auction.findById(id).populate('user', 'displayName').exec(function (err, auction) {
+  Auction.findById(id).populate('author', 'displayName').exec(function (err, auction) {
     if (err) {
       return next(err);
     } else if (!auction) {
@@ -114,4 +114,26 @@ exports.auctionByID = function(req, res, next, id) {
     req.auction = auction;
     next();
   });
+};
+
+exports.filterAuctionsByCategory = function (req, res, next, category) {
+  Auction.find({'category' : category}).sort('-created').exec(function(err, auctions) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(auctions);
+    }
+  });
+};
+
+exports.allCategories = function (req, res) {
+  var categories = Auction.schema.path('category').enumValues;
+  res.jsonp(categories);
+};
+
+exports.allCurrencies = function (req, res) {
+  var currencies = Auction.schema.path('currency').enumValues;
+  res.jsonp(currencies);
 };

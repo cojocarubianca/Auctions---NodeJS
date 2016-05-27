@@ -3,8 +3,7 @@
 /**
  * Module dependencies.
  */
-var mongoose = require('mongoose'),
-  Schema = mongoose.Schema;
+var mongoose = require('mongoose'), Schema = mongoose.Schema;
 
 /**
  * Auction Schema
@@ -25,8 +24,7 @@ var AuctionSchema = new Schema({
     ref: 'User'
   },
   startDate: {
-    type: Date,
-    required: 'Please fill starting date'
+    type: Date
   },
   endDate: {
     type: Date,
@@ -48,14 +46,19 @@ var AuctionSchema = new Schema({
   },
   currency: {
     type: String,
+    enum: ['EUR', 'GBP', 'USD'],
+    default: 'EUR',
     required: 'Please fill currency'
   },
+  category: {
+    type: String,
+    enum: ['Art', 'Books', 'Antiques', 'Jewelry', 'Musical Instruments'],
+    required: "Please fill the category"
+  },
   status: {
-    type: [{
-      type: String,
-      enum: ['active', 'inactive']
-    }],
-    default: ['inactive']
+    type: String,
+    enum: ['pending', 'active', 'ended'],
+    default: ['pending']
   },
   pictures: {
     type: [String],

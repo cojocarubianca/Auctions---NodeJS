@@ -2,19 +2,34 @@
   <div class="page-header">
     <h1>Auctions</h1>
   </div>
+  <div>
+    <div>
+      <label for="category">Category</label>
+      <select id="category" name="category" ng-model="vm.chosenCategory" ng-change="vm.filterByCategory()">
+        <option>All</option>
+        <option ng-repeat="category in vm.categories" value="{{category}}">{{category}}</option>
+      </select>
+    </div>
+  </div>
   <div class="list-group">
     <a data-ng-repeat="auction in vm.auctions"
        data-ui-sref="auctions.view({ auctionId: auction._id })"
        class="list-group-item">
-      <small class="list-group-item-text">
-        Posted on
-        <span data-ng-bind="auction.created | date:'mediumDate'"></span>
-        by
-        <span data-ng-if="auction.user" data-ng-bind="auction.user.displayName"></span>
-        <span data-ng-if="!auction.user">Deleted User</span>
-      </small>
-      <h4 class="list-group-item-heading" data-ng-bind="auction.name"></h4>
-      <h4 class="list-group-item-heading" data-ng-bind="auction.startDate"></h4>
+      <div class="row">
+        <div>
+          <small class="list-group-item-text">
+            Posted on
+            <span data-ng-bind="auction.created | date:'mediumDate'"></span>
+            by
+            <span data-ng-if="auction.author" data-ng-bind="auction.author.displayName"></span>
+            <span data-ng-if="!auction.author">Deleted User</span>
+          </small>
+          <h4 class="list-group-item-heading" data-ng-bind="auction.name"></h4>
+        </div>
+        <div ng-show="auction.pictures.length > 0">
+          <img style="width: 150px;height: 100px;" ng-src="{{auction.pictures[0]}}">
+        </div>
+      </div>
     </a>
   </div>
   <div class="alert alert-warning text-center" data-ng-if="vm.auctions.$resolved && !vm.auctions.length">

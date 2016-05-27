@@ -6,22 +6,97 @@
     <form name="vm.form.auctionForm" class="form-horizontal" ng-submit="vm.save(vm.form.auctionForm.$valid)" novalidate>
       <fieldset>
         <div class="form-group" show-errors>
-          <label class="control-label" for="name">Name</label>
-          <input name="name" type="text" ng-model="vm.auction.name" id="name" class="form-control" placeholder="Name" required>
-          <div ng-messages="vm.form.auctionForm.name.$error" role="alert">
-            <p class="help-block error-text" ng-message="required">Auction name is required.</p>
+          <div class="row">
+            <div class="col-md-6">
+              <label class="control-label" for="name">Name</label>
+              <input name="name" type="text" ng-model="vm.auction.name" id="name" class="form-control" placeholder="Name" required>
+              <div ng-messages="vm.form.auctionForm.name.$error" role="alert">
+                <p class="help-block error-text" ng-message="required">Auction name is required.</p>
+              </div>
+            </div>
           </div>
-          <label class="control-label" for="startDate">Start date</label>
-          <input name="name" type="text" ng-model="vm.auction.startDate" id="startDate" class="form-control" placeholder="Start date" required>
-          <div ng-messages="vm.form.auctionForm.startDate.$error" role="alert">
-            <p class="help-block error-text" ng-message="required">Auction name is required.</p>
+
+          <div class="row">
+            <div class="col-md-3">
+              <label class="control-label" for="endDate">End date</label>
+              <p class="input-group">
+                <input name="endDate" class="form-control" type="date" ng-model="vm.auction.endDate"
+                       id="endDate" placeholder="endDate" required datepicker-popup datepicker-append-to-body="true"
+                       is-open="vm.endDatePopup.opened" close-text="Close"
+                       ng-click="vm.endDatePopup.opened = true"/>
+              </p>
+              <div ng-messages="vm.form.auctionForm.endDate.$error" role="alert">
+                <p class="help-block error-text" ng-message="required">Auction start date is required.</p>
+              </div>
+            </div>
           </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <label class="control-label" for="description">Description</label>
+              <textarea class="form-control" ng-model="vm.auction.description" required name="description" id="description"></textarea>
+            </div>
+            <div ng-messages="vm.form.auctionForm.description.$error" role="alert">
+              <p class="help-block error-text" ng-message="required">Description is required.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-2">
+              <label class="control-label" for="startingBid">Starting bid</label>
+              <input id="startingBid" class="form-control" type="number" name="startingBid" required ng-model="vm.auction.startingBid"/>
+            </div>
+            <div class="col-md-2">
+              <label class="control-label" for="currency">Currency</label>
+              <select class="form-control" id="currency" ng-model="vm.auction.currency">
+                <option ng-repeat="currency in vm.currencies" value="{{currency}}">{{currency}}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <label class="control-label" for="category">Category</label>
+              <select class="form-control" id="category" name="category" ng-model="vm.auction.category">
+                <option ng-repeat="category in vm.categories" value="{{category}}">{{category}}</option>
+              </select>
+            </div>
+            <div ng-messages="vm.form.auctionForm.category.$error" role="alert">
+              <p class="help-block error-text" ng-message="required">Description is required.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <label class="control-label" for="photos">Add photos</label>
+              <input id="photos" type="file" name="file"
+                     onchange="angular.element(this).scope().uploadedFile(this)" multiple/>
+            </div>
+          </div>
+
+          <div class="row">
+            <div ng-repeat="file in vm.files" style="width: 200px;padding: 5px;margin: 7px;
+                      float: left;">
+              <span>{{file.name}}</span>
+              <div class="thumbnail" style="width: 188px;height: 188px">
+                <img style="width: 180px;height: 180px" ng-src="{{file.imgSrc}}">
+              </div>
+              <div class="btn-group">
+                <a class="btn btn-xs btn-danger" ng-click="removeFile(file)">Remove</a>
+              </div>
+            </div>
+          </div>
+
         </div>
+
         <div class="form-group">
           <button type="submit" class="btn btn-default">{{vm.auction._id ? 'Update' : 'Create'}}</button>
         </div>
         <div ng-show="vm.error" class="text-danger">
           <strong ng-bind="vm.error"></strong>
+        </div>
+        <div ng-show="vm.messages" class="text-info">
+          <strong ng-bind="vm.messages"></strong>
         </div>
       </fieldset>
     </form>
