@@ -99,6 +99,11 @@
         return false;
       }
 
+      if (vm.bidValue < vm.auction.startingBid) {
+        vm.messages = 'The bid has to be greater than the starting bid!'
+        return false;
+      }
+
       if (vm.bidValue <= vm.auction.highestBid) {
         vm.messages = 'The bid value has to be greater than the highest bid';
         return false;

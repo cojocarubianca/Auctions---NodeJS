@@ -116,6 +116,18 @@ exports.auctionByID = function(req, res, next, id) {
   });
 };
 
+exports.filterAuctionsByCategory = function (req, res, next, category) {
+  Auction.find({'category' : category}).sort('-created').exec(function(err, auctions) {
+    if (err) {
+      return res.status(400).send({
+        message: errorHandler.getErrorMessage(err)
+      });
+    } else {
+      res.jsonp(auctions);
+    }
+  });
+};
+
 exports.allCategories = function (req, res) {
   var categories = Auction.schema.path('category').enumValues;
   res.jsonp(categories);

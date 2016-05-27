@@ -17,6 +17,8 @@ module.exports = function(app) {
     .get(auctions.read)
     .put(auctions.update)
     .delete(auctions.delete);
+  
+  app.route('/api/auctions/categories/:category').all(auctionsPolicy.isAllowed);
 
   app.route('/api/categories').all(auctionsPolicy.isAllowed)
       .get(auctions.allCategories);
@@ -29,4 +31,5 @@ module.exports = function(app) {
 
   // Finish by binding the Auction middleware
   app.param('auctionId', auctions.auctionByID);
+  app.param('category', auctions.filterAuctionsByCategory);
 };

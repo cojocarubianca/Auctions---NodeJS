@@ -2,6 +2,15 @@
   <div class="page-header">
     <h1>Auctions</h1>
   </div>
+  <div>
+    <div>
+      <label for="category">Category</label>
+      <select id="category" name="category" ng-model="vm.chosenCategory" ng-change="vm.filterByCategory()">
+        <option>All</option>
+        <option ng-repeat="category in vm.categories" value="{{category}}">{{category}}</option>
+      </select>
+    </div>
+  </div>
   <div class="list-group">
     <a data-ng-repeat="auction in vm.auctions"
        data-ui-sref="auctions.view({ auctionId: auction._id })"
