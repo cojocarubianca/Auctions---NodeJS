@@ -7,10 +7,10 @@
     .controller('AuctionsController', AuctionsController);
 
   AuctionsController.$inject = ['$scope', '$timeout', '$state', '$q', 'Authentication', 'auctionResolve',
-    'CategoriesService', 'CurrenciesService', 'UploadService'];
+    'CategoriesService', 'CurrenciesService', 'UploadService', 'Socket'];
 
   function AuctionsController ($scope, $timeout, $state, $q, Authentication, auction,
-                               categoriesService, currenciesService, uploadService) {
+                               categoriesService, currenciesService, uploadService, Socket) {
     var vm = this;
 
     vm.authentication = Authentication;
@@ -116,7 +116,9 @@
       vm.auction.winner = vm.authentication.user;
       vm.auction.$update(
           function(res) {
-            vm.messages = 'Your bid was successfully submited';
+              var socketio = res.app.get('socketio');
+              socketio.sockets.emit('auction', vm.bidValue );
+              vm.messages = 'Your bid was successfully submited';
           },
           function(res) {
             vm.messages = 'Your bid cannot be processed at this moment. Please try again later.';
@@ -216,6 +218,12 @@
       var clockInterval = setInterval(updateClock, 1000);
     }
 
+    Socket.on('auction.bid', function(auc) {
+      console.log(auc);
+    });
+
+
     initializeClock(vm.auction.endDate);
+    
   }
 })();

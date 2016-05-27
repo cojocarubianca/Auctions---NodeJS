@@ -10,6 +10,7 @@ angular.module('core').service('Socket', ['Authentication', '$state', '$timeout'
         this.socket = io();
       }
     };
+    
     this.connect();
 
     // Wrap the Socket.io 'on' method

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ ! -e server.js ]
+if [ ! -e socket.js ]
 then
-	echo "Error: could not find main application server.js file"
+	echo "Error: could not find main application socket.js file"
 	echo "You should run the generate-ssl-certs.sh script from the main MEAN application root directory"
 	echo "i.e: bash scripts/generate-ssl-certs.sh"
 	exit -1

@@ -1,23 +1,26 @@
-'use strict';
+"use strict";
 
 /**
  * Module dependencies.
  */
-var config = require('../config'),
-  express = require('express'),
-  morgan = require('morgan'),
-  logger = require('./logger'),
-  bodyParser = require('body-parser'),
-  session = require('express-session'),
-  MongoStore = require('connect-mongo')(session),
-  favicon = require('serve-favicon'),
-  compress = require('compression'),
-  methodOverride = require('method-override'),
-  cookieParser = require('cookie-parser'),
-  helmet = require('helmet'),
-  flash = require('connect-flash'),
-  consolidate = require('consolidate'),
-  path = require('path');
+var config, express, http, socketio, morgan, logger, bodyParser, session, MongoStore, favicon, compress, methodOverride, cookieParser, helmet, flash, consolidate, path;
+config = require('../config');
+express = require('express');
+http = require('http');
+socketio = require('socket.io');
+morgan = require('morgan');
+logger = require('./logger');
+bodyParser = require('body-parser');
+session = require('express-session');
+MongoStore = require('connect-mongo')(session);
+favicon = require('serve-favicon');
+compress = require('compression');
+methodOverride = require('method-override');
+cookieParser = require('cookie-parser');
+helmet = require('helmet');
+flash = require('connect-flash');
+consolidate = require('consolidate');
+path = require('path');
 
 /**
  * Initialize local variables
@@ -218,7 +221,9 @@ module.exports.configureSocketIO = function (app, db) {
  */
 module.exports.init = function (db) {
   // Initialize express app
-  var app = express();
+  var io;
+    var server;
+    var app = express();
 
   // Initialize local variables
   this.initLocalVariables(app);
@@ -253,5 +258,10 @@ module.exports.init = function (db) {
   // Configure Socket.io
   app = this.configureSocketIO(app, db);
 
+  server = http.createServer(app);
+  io = socketio.listen(server);
+  app.set('socketio', io);
+  app.set('server', server);
+    
   return app;
 };
