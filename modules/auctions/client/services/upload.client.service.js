@@ -8,33 +8,35 @@
       .module('auctions')
       .factory('UploadService', UploadService);
 
-  UploadService.$inject = ['$http'];
+  UploadService.$inject = ['$http','$q'];
 
-  function UploadService($http) {
+  function UploadService($http, $q) {
     return {
-      uploadFiles: function (files, success, error) {
+      uploadFiles: function (files) {
         var url = '/api/utils/uploadFile';
 
-        var err = null;
+        var deferred = $q.defer();
 
-        for (var i = 0; i < files.length; i++) {
-          var fd = new FormData();
-          fd.append("file", files[i]);
-          $http.post(url, fd, {
-            withCredentials: false,
-            headers: {
-              'Content-Type': undefined
-            },
-            transformRequest: angular.identity
-          }).success(function (data) {
-            console.log(data);
-          }).error(function (data) {
-            err = data;
-            console.log(err);
-            return err;
-          });
+        var fd = new FormData();
+        for (var i = 0; i< files.length; i++) {
+          fd.append("files", files[i]);
         }
-        return err;
+        
+        $http.post(url, fd, {
+          withCredentials: false,
+          headers: {
+            'Content-Type': undefined
+          },
+          transformRequest: angular.identity
+        }).success(function (data) {
+          console.log(data);
+          deferred.resolve(data.filesNames);
+        }).error(function (data) {
+          console.log(data);
+          deferred.reject(null);
+        });
+
+        return deferred.promise;
       }
     };
   }

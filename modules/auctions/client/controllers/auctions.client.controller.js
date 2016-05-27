@@ -6,10 +6,10 @@
     .module('auctions')
     .controller('AuctionsController', AuctionsController);
 
-  AuctionsController.$inject = ['$scope', '$timeout', '$q', '$state', 'Authentication', 'auctionResolve',
+  AuctionsController.$inject = ['$scope', '$timeout', '$state', '$q', 'Authentication', 'auctionResolve',
     'CategoriesService', 'CurrenciesService', 'UploadService'];
 
-  function AuctionsController ($scope, $timeout, $q, $state, Authentication, auction,
+  function AuctionsController ($scope, $timeout, $state, $q, Authentication, auction,
                                categoriesService, currenciesService, uploadService) {
     var vm = this;
 
@@ -20,6 +20,7 @@
     vm.form = {};
     vm.remove = remove;
     vm.save = save;
+    vm.bidValue = 0;
 
     vm.startDatePopup = {
       opened : false
@@ -35,6 +36,8 @@
 
     vm.categories = categoriesService.query();
     vm.currencies = currenciesService.query();
+
+    vm.clock = {};
     
     // ====== Upload =======
 
@@ -42,46 +45,43 @@
     vm.srcFiles = [];
 
     vm.uploadFiles = function () {
-      var err = uploadService.uploadFiles(vm.files,
-          function(msg){
-            vm.messages = 'Pictures uploaded';
+      var deferred = $q.defer();
+      var promise = uploadService.uploadFiles(vm.files);
+
+      promise.then(
+          function (filesNames) {
+            deferred.resolve(filesNames);
           },
-          function (msg) {
-            vm.error = 'Could not upload';
-          });
-      if (err) {
-        vm.error = 'Could not upload';
-        return false;
-      }
-      vm.messages = 'Pictures uploaded';
+          function (error) {
+            deferred.reject(error);
+          }
+      );
+
+      return deferred.promise;
     };
 
     $scope.uploadedFile = function(element) {
       $scope.$apply(function($scope) {
         var files = element.files;
         for (var i = 0; i< files.length; i++) {
-          $scope.getSrcFromImage(files[i])
-              .then(function (imgSrc) {
-                files[i].imgSrc = imgSrc;
-            });
           vm.files.push(files[i]);
+          $scope.addSrcFromImage();
         }
       });
     };
 
-    $scope.getSrcFromImage = function (file) {
-      var deferred = $q.defer();
-
+    $scope.addSrcFromImage = function () {
       var reader = new FileReader();
-      var imgSrc = '//:0';
+      var file = vm.files[vm.files.length - 1];
+      file.imgSrc = '//:0';
 
       reader.onload = function (e) {
-        imgSrc = e.target.result;
+        $timeout(function () {
+          file.imgSrc = e.target.result;
+        }, 0);
       };
 
       reader.readAsDataURL(file);
-      deferred.resolve(imgSrc);
-      return deferred.promise;
     };
 
     $scope.removeFile = function (file) {
@@ -93,7 +93,34 @@
     
     // ====== Upload =======
     
-    
+    $scope.bid = function () {
+      if (vm.bidValue === 0) {
+        vm.messages = 'The bid value cannot be 0';
+        return false;
+      }
+
+      if (vm.bidValue <= vm.auction.highestBid) {
+        vm.messages = 'The bid value has to be greater than the highest bid';
+        return false;
+      }
+
+      var auxHighestBid = vm.auction.highestBid;
+      var auxWinner = vm.auction.winner;
+
+      vm.auction.highestBid = vm.bidValue;
+      vm.auction.winner = vm.authentication.user;
+      vm.auction.$update(
+          function(res) {
+            vm.messages = 'Your bid was successfully submited';
+          },
+          function(res) {
+            vm.messages = 'Your bid cannot be processed at this moment. Please try again later.';
+            vm.auction.highestBid = auxHighestBid;
+            vm.auction.winner = auxWinner;
+          });
+
+      return false;
+    };
 
     // Remove existing Auction
     function remove() {
@@ -109,12 +136,30 @@
         return false;
       }
 
-      // TODO: move create/update logic to service
-      if (vm.auction._id) {
-        vm.auction.$update(successCallback, errorCallback);
-      } else {
-        vm.auction.$save(successCallback, errorCallback);
+      if (vm.files.length > 0) {
+          var result = vm.uploadFiles();
+
+          result.then(
+              function (filesNames) {
+                if (vm.auction.pictures === undefined) {
+                  vm.auction.pictures = [];
+                }
+                vm.auction.pictures = vm.auction.pictures.concat(filesNames);
+
+                if (vm.auction._id) {
+                  vm.auction.$update(successCallback, errorCallback);
+                } else {
+                  vm.auction.$save(successCallback, errorCallback);
+                }
+              },
+              function (error) {
+                vm.messages = 'Error';
+              }
+          );
+          return false;
       }
+
+
 
       function successCallback(res) {
         $state.go('auctions.view', {
@@ -126,5 +171,46 @@
         vm.error = res.data.message;
       }
     }
+
+    // === Countdown ====
+
+    function getTimeRemaining(endTime) {
+      var t = Date.parse(endTime) - Date.parse(new Date());
+      var seconds = Math.floor((t / 1000) % 60);
+      var minutes = Math.floor((t / 1000 / 60) % 60);
+      var hours = Math.floor((t / (1000 * 60 * 60)) % 24);
+      var days = Math.floor(t / (1000 * 60 * 60 * 24));
+      return {
+        'total': t,
+        'days': days,
+        'hours': hours,
+        'minutes': minutes,
+        'seconds': seconds
+      };
+    }
+
+    function initializeClock(endTime) {
+      vm.clock.ended = false;
+      function updateClock() {
+        $scope.$apply(function() {
+          var t = getTimeRemaining(endTime);
+
+          vm.clock.days = t.days;
+          vm.clock.hours = ('0' + t.hours).slice(-2);
+          vm.clock.minutes = ('0' + t.minutes).slice(-2);
+          vm.clock.seconds = ('0' + t.seconds).slice(-2);
+
+          if (t.total <= 0) {
+            vm.clock.ended = true;
+            clearInterval(clockInterval);
+          }
+        });
+      }
+
+      updateClock(endTime);
+      var clockInterval = setInterval(updateClock, 1000);
+    }
+
+    initializeClock(vm.auction.endDate);
   }
 })();

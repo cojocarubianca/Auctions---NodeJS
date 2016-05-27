@@ -37,7 +37,7 @@ exports.invokeRolesPolicies = function () {
       permissions: ['get', 'post']
     }, {
       resources: '/api/auctions/:auctionId',
-      permissions: ['get']
+      permissions: ['get','put']
     }, {
       resources: '/api/categories',
       permissions: ['get']
@@ -67,7 +67,7 @@ exports.isAllowed = function (req, res, next) {
   var roles = (req.user) ? req.user.roles : ['guest'];
 
   // If an Auction is being processed and the current user created it then allow any manipulation
-  if (req.auction && req.user && req.auction.user && req.auction.user.id === req.user.id) {
+  if (req.auction && req.user && req.auction.author && req.auction.author.id === req.user.id) {
     return next();
   }
 

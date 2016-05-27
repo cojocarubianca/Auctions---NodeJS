@@ -9,12 +9,17 @@ var multer = require('multer'),
 
 
 exports.uploadFile = function (req, res) {
-  var upload = multer(config.uploads.auctionImageUpload).single('file');
+  var upload = multer(config.uploads.auctionImageUpload).array('files');
   upload(req,res,function(err){
     if(err){
       res.json({ error_code:1,err_desc:err });
-      return;
+    } else {
+      var filesNames = [];
+      for (var i = 0; i < req.files.length; i++) {
+        var fileName = config.uploads.auctionImageUpload.dest + req.files[i].filename;
+        filesNames.push(fileName);
+      }
+      res.json({filesNames : filesNames});
     }
-    res.json({ error_code:0,err_desc:null });
   });
 };

@@ -10,8 +10,8 @@
         Posted on
         <span data-ng-bind="auction.created | date:'mediumDate'"></span>
         by
-        <span data-ng-if="auction.user" data-ng-bind="auction.user.displayName"></span>
-        <span data-ng-if="!auction.user">Deleted User</span>
+        <span data-ng-if="auction.author" data-ng-bind="auction.author.displayName"></span>
+        <span data-ng-if="!auction.author">Deleted User</span>
       </small>
       <h4 class="list-group-item-heading" data-ng-bind="auction.name"></h4>
       <h4 class="list-group-item-heading" data-ng-bind="auction.startDate"></h4>
