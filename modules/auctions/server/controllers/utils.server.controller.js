@@ -5,7 +5,8 @@
 
 var multer = require('multer'),
   path = require('path'),
-  config = require(path.resolve('./config/config'));
+  config = require(path.resolve('./config/config')),
+    fs = require('fs');
 
 
 exports.uploadFile = function (req, res) {
@@ -24,4 +25,14 @@ exports.uploadFile = function (req, res) {
   });
 };
 
+exports.removeFile = function (req, res, next, filePath) {
+  fs.exists(filePath, function(exists) {
+    if(exists) {
+      console.log('File exists. Deleting now ...');
+      fs.unlink(filePath);
+    } else {
+      console.log('File not found, so not deleting.');
+    }
+  });
+};
 

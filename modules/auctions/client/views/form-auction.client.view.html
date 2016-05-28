@@ -75,6 +75,15 @@
           </div>
 
           <div class="row">
+            <div ng-repeat="file in vm.auction.pictures" style="width: 200px;padding: 5px;margin: 7px;
+                      float: left;">
+              <div class="thumbnail" style="width: 188px;height: 188px">
+                <img style="width: 180px;height: 180px" ng-src="{{file}}">
+              </div>
+              <div class="btn-group">
+                <a class="btn btn-xs btn-danger" ng-click="removeExistingFile(file)">Remove</a>
+              </div>
+            </div>
             <div ng-repeat="file in vm.files" style="width: 200px;padding: 5px;margin: 7px;
                       float: left;">
               <span>{{file.name}}</span>

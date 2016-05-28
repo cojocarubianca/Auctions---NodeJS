@@ -7,10 +7,10 @@
     .controller('AuctionsController', AuctionsController);
 
   AuctionsController.$inject = ['$scope', '$timeout', '$state', '$q', 'Authentication', 'auctionResolve',
-    'CategoriesService', 'CurrenciesService', 'UploadService'];
+    'CategoriesService', 'CurrenciesService', 'UploadService', 'RemoveFileService'];
 
   function AuctionsController ($scope, $timeout, $state, $q, Authentication, auction,
-                               categoriesService, currenciesService, uploadService) {
+                               categoriesService, currenciesService, uploadService, removeFileService) {
     var vm = this;
 
     vm.authentication = Authentication;
@@ -29,12 +29,22 @@
     vm.categories = categoriesService.query();
     vm.currencies = currenciesService.query();
 
+    if (vm.auction.pictures === undefined) {
+      vm.auction.pictures = [];
+    }
+
+    if (vm.auction.endDate !== undefined) {
+      vm.auction.endDate = new Date(Date.parse(vm.auction.endDate));
+    }
+
+
     vm.clock = {};
     
     // ====== Upload =======
 
     vm.files = [];
     vm.srcFiles = [];
+    vm.filesToRemove = [];
 
     vm.uploadFiles = function () {
       var deferred = $q.defer();
@@ -82,6 +92,14 @@
         vm.files.splice(index, 1);
       }
     };
+
+    $scope.removeExistingFile = function (file) {
+      vm.filesToRemove.push(file);
+      var index  = vm.auction.pictures.indexOf(file);
+      if (index > -1) {
+        vm.auction.pictures.splice(index, 1);
+      }
+    };
     
     // ====== Upload =======
     
@@ -127,6 +145,13 @@
     // Remove existing Auction
     function remove() {
       if (confirm('Are you sure you want to delete?')) {
+        if (vm.auction.pictures.length > 0) {
+          for (var i = 0; i < vm.auction.pictures.length; i++) {
+            removeFileService.get({
+              filePath: vm.auction.pictures[i]
+            });
+          }
+        }
         vm.auction.$remove($state.go('auctions.list'));
       }
     }
@@ -138,14 +163,25 @@
         return false;
       }
 
+      if (vm.auction.endDate < Date.now()) {
+        vm.messages = 'End date cannot be in the past';
+        return false;
+      }
+
+      if (vm.filesToRemove.length > 0) {
+        for (var i = 0; i < vm.filesToRemove.length; i++) {
+          removeFileService.get({
+            filePath: vm.filesToRemove[i]
+          });
+        }
+      }
+
       if (vm.files.length > 0) {
           var result = vm.uploadFiles();
 
           result.then(
               function (filesNames) {
-                if (vm.auction.pictures === undefined) {
-                  vm.auction.pictures = [];
-                }
+
                 vm.auction.pictures = vm.auction.pictures.concat(filesNames);
 
                 if (vm.auction._id) {

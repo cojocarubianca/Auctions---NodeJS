@@ -29,7 +29,11 @@ module.exports = function(app) {
   app.route('/api/utils/uploadFile').all(auctionsPolicy.isAllowed)
       .post(utils.uploadFile);
 
+  app.route('/api/utils/removeFile/:filePath').all(auctionsPolicy.isAllowed)
+      .post(utils.uploadFile);
+
   // Finish by binding the Auction middleware
   app.param('auctionId', auctions.auctionByID);
   app.param('category', auctions.filterAuctionsByCategory);
+  app.param('filePath', utils.removeFile);
 };
